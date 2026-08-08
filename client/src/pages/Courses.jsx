@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/client.js';
+import { useAuth } from '../context/AuthContext.jsx';
 import Spinner from '../components/Spinner.jsx';
 import { formatMinutes } from '../utils/format.js';
 
 export default function Courses() {
+  const { user } = useAuth();
+  const isMentor = user.role === 'mentor';
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -22,10 +25,17 @@ export default function Courses() {
 
   return (
     <div>
-      <h1 className="page-title">Course catalog</h1>
-      <p className="page-subtitle">Browse and continue your courses.</p>
+      <h1 className="page-title">{isMentor ? 'Course content' : 'Course catalog'}</h1>
+      <p className="page-subtitle">
+        {isMentor
+          ? 'Open a course to upload and manage its PDF materials.'
+          : 'Browse and continue your courses.'}
+      </p>
 
-      <div className="grid courses-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' }}>
+      <div
+        className="grid courses-grid"
+        style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' }}
+      >
         {courses.map((c) => {
           const pct = c.totalLessons ? Math.round((c.completedLessons / c.totalLessons) * 100) : 0;
           return (
@@ -37,7 +47,9 @@ export default function Courses() {
             >
               <div className="row-between" style={{ marginBottom: 10 }}>
                 <span className={`badge badge-${c.difficulty}`}>{c.difficulty}</span>
-                {c.enrolled ? (
+                {isMentor ? (
+                  <span className="chip">📄 {c.materialsCount} PDF{c.materialsCount === 1 ? '' : 's'}</span>
+                ) : c.enrolled ? (
                   <span className={`badge badge-${c.status}`}>{c.status}</span>
                 ) : (
                   <span className="chip">Not enrolled</span>
@@ -52,8 +64,9 @@ export default function Courses() {
               </p>
               <div className="course-meta" style={{ marginTop: 10 }}>
                 {c.category} · {c.totalLessons} lessons · {formatMinutes(c.estimatedMinutes)}
+                {!isMentor && c.materialsCount > 0 ? ` · 📄 ${c.materialsCount}` : ''}
               </div>
-              {c.enrolled && (
+              {!isMentor && c.enrolled && (
                 <div className="progress-track" style={{ marginTop: 6 }}>
                   <div className="progress-fill" style={{ width: `${pct}%`, background: c.color }} />
                 </div>

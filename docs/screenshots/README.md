@@ -12,6 +12,8 @@ Captured against the seeded demo data (student `student@demo.io`, mentor `mentor
 | `04-course-detail.png` | Course detail with lessons and "mark complete" |
 | `06-mentor-cohort.png` | Mentor cohort — roll-up KPIs + student roster |
 | `07-mentor-student-detail.png` | Mentor's per-student deep dive with charts |
+| `11-course-pdf-student.png` | Student viewing a mentor-uploaded PDF inline |
+| `12-course-pdf-mentor.png` | Mentor uploading / managing course PDFs |
 
 ## Responsive
 

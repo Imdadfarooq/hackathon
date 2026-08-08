@@ -32,6 +32,15 @@ function errorHandler(err, req, res, next) {
     message = `Invalid value for ${err.path}`;
   }
 
+  // Multer upload errors (file too large, unexpected field, etc.)
+  if (err.name === 'MulterError') {
+    statusCode = 400;
+    message =
+      err.code === 'LIMIT_FILE_SIZE'
+        ? 'File is too large (max 10 MB)'
+        : `Upload error: ${err.message}`;
+  }
+
   // Duplicate key (e.g. email already registered)
   if (err.code === 11000) {
     statusCode = 409;

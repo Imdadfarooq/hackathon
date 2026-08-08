@@ -41,6 +41,10 @@ Built with the **MERN** stack — **M**ongoDB, **E**xpress, **R**eact, **N**ode.
 |---|---|
 | ![Course detail](docs/screenshots/04-course-detail.png) | ![Mentor student detail](docs/screenshots/07-mentor-student-detail.png) |
 
+| Student — PDF material viewed inline | Mentor — upload / manage PDFs |
+|---|---|
+| ![PDF student](docs/screenshots/11-course-pdf-student.png) | ![PDF mentor](docs/screenshots/12-course-pdf-mentor.png) |
+
 | Course catalog | Login |
 |---|---|
 | ![Courses](docs/screenshots/03-courses.png) | ![Login](docs/screenshots/01-login.png) |
@@ -65,6 +69,7 @@ hamburger menu below 640px.
 - [x] **Trend chart** — time-series of minutes studied per day (7 / 30 / 90 day ranges)
 - [x] **Pie / donut chart** — distribution of time per course **and** completion status
 - [x] **Backend API** for auth, aggregates & time-series, lesson details, and activity events
+- [x] **Mentor PDF content** — mentors upload PDF materials per course; students view them inline (a PDF is seeded for every course)
 - [x] **Seeded sample data** + clear setup instructions
 
 ### Stretch features
@@ -130,7 +135,7 @@ cd hackathon
 cd server
 cp .env.example .env            # then edit JWT_SECRET
 npm install
-npm run seed                    # loads courses, users & ~287 activity events
+npm run seed                    # loads courses, users, a PDF per course & ~287 activity events
 npm run dev                     # API on http://localhost:5000
 
 # 3. Frontend (in a second terminal)
@@ -192,6 +197,7 @@ Course        { title, slug, category, difficulty, tags, color, totalLessons, es
 Lesson        { course→Course, title, order, summary, content, estimatedMinutes, difficulty }
 Enrollment    { student→User, course→Course, status, completedLessons[], totalTimeMinutes, lastActivityAt }
 ActivityEvent { student→User, course→Course, lesson→Lesson, type, durationMinutes, score, occurredAt }
+CourseMaterial { course→Course, title, filename, mimetype, size, data(Buffer), uploadedBy→User }
 ```
 
 `ActivityEvent.type` ∈ `lesson_started | lesson_completed | quiz_attempt | quiz_passed | video_watched | login`.
@@ -309,6 +315,10 @@ Quick reference:
 | `GET` | `/api/courses/:id` | any | Course + lessons |
 | `GET` | `/api/courses/:id/lessons/:lessonId` | any | Lesson detail |
 | `POST` | `/api/courses/:id/enroll` | student | Enroll |
+| `GET` | `/api/courses/:id/materials` | any | List course PDFs |
+| `POST` | `/api/courses/:id/materials` | mentor | Upload a PDF |
+| `GET` | `/api/courses/:id/materials/:mid/file` | any | Stream/view a PDF |
+| `DELETE` | `/api/courses/:id/materials/:mid` | mentor | Delete a PDF |
 | `POST` | `/api/activities` | student | Record activity event |
 | `GET` | `/api/activities` | student | Recent activity feed |
 | `GET` | `/api/mentor/students` | mentor | Cohort roster + roll-up |
@@ -342,7 +352,7 @@ In **production** the server refuses to start unless `JWT_SECRET` is set to a st
 ## 📦 Deliverables
 
 - ✅ **Full-stack repo** — `server/` + `client/`
-- ✅ **Seed data** — `npm run seed` (6 courses, 6 users, ~287 activity events)
+- ✅ **Seed data** — `npm run seed` (6 courses, 6 users, a PDF guide per course, ~287 activity events)
 - ✅ **API documentation** — [docs/API.md](docs/API.md)
 - ✅ **Screenshots** — [docs/screenshots/](docs/screenshots/)
 - ✅ **Tests** — `cd server && npm test`

@@ -337,6 +337,54 @@ Enroll the current student (idempotent). Requires **student**.
 
 ---
 
+## Course materials (PDF)
+
+Mentors upload PDF content to a course; students (and mentors) can list and view
+it. Listing/viewing require any authenticated user; uploading/deleting require a
+**mentor** token. Files are stored in MongoDB and streamed by the file endpoint.
+
+### `GET /api/courses/:id/materials`
+List a course's materials (metadata only — no bytes).
+
+**Response `200`**
+```json
+{
+  "materials": [
+    {
+      "id": "…",
+      "title": "Data Structures & Algorithms — Course Guide",
+      "filename": "data-structures-algorithms-guide.pdf",
+      "mimetype": "application/pdf",
+      "size": 1267,
+      "uploadedBy": { "name": "Morgan Mentor", "role": "mentor" },
+      "createdAt": "2026-08-08T…"
+    }
+  ]
+}
+```
+
+### `POST /api/courses/:id/materials`  (mentor only)
+`multipart/form-data` with a `file` field (the PDF) and an optional `title` field.
+Max size 10 MB; only `application/pdf` is accepted.
+
+```bash
+curl -X POST http://localhost:5000/api/courses/<id>/materials \
+  -H "Authorization: Bearer $MENTOR_TOKEN" \
+  -F "title=Week 1 Notes" \
+  -F "file=@notes.pdf;type=application/pdf"
+```
+**Response `201`** `{ "material": { "id", "title", "filename", "mimetype", "size", "createdAt" } }`.
+Errors: `400` missing/oversized/non-PDF file, `403` non-mentor, `404` course not found.
+
+### `GET /api/courses/:id/materials/:materialId/file`
+Streams the raw PDF bytes with `Content-Type: application/pdf` and
+`Content-Disposition: inline` so it renders in the browser. Any authenticated user.
+
+### `DELETE /api/courses/:id/materials/:materialId`  (mentor only)
+Removes a material. **Response `200`** `{ "message": "Material deleted" }`.
+
+---
+
 ## Activity endpoints (student)
 
 Require a **student** token.

@@ -6,6 +6,8 @@ const Course = require('../models/Course');
 const Lesson = require('../models/Lesson');
 const Enrollment = require('../models/Enrollment');
 const ActivityEvent = require('../models/ActivityEvent');
+const CourseMaterial = require('../models/CourseMaterial');
+const { makePdf } = require('../utils/pdf');
 const { COURSES, MENTOR, STUDENTS, DEMO_PASSWORD } = require('./data');
 
 // --- Deterministic PRNG (mulberry32) so seeded data & screenshots are reproducible ---
@@ -46,7 +48,41 @@ async function clearAll() {
     Lesson.deleteMany({}),
     Enrollment.deleteMany({}),
     ActivityEvent.deleteMany({}),
+    CourseMaterial.deleteMany({}),
   ]);
+}
+
+/**
+ * Attach a generated PDF "course guide" to every course, authored by the mentor.
+ * In production a mentor uploads real PDFs; here we synthesize valid ones so the
+ * feature is demonstrable straight after seeding.
+ */
+async function createMaterials(courseDocs, mentor) {
+  let count = 0;
+  for (const { course, lessons } of courseDocs) {
+    const paragraphs = [
+      course.description,
+      `Format: ${course.difficulty} level · ${course.totalLessons} lessons · about `
+        + `${Math.round(course.estimatedMinutes / 60)} hours of material.`,
+      'What you will learn: ' + lessons.map((l) => l.title).join('; ') + '.',
+      'This companion PDF was uploaded by your mentor and is available to every '
+        + 'enrolled student inside ProgressBoard.',
+    ];
+    const buffer = makePdf(`${course.title} — Course Guide`, paragraphs);
+
+    // eslint-disable-next-line no-await-in-loop
+    await CourseMaterial.create({
+      course: course._id,
+      title: `${course.title} — Course Guide`,
+      filename: `${course.slug}-guide.pdf`,
+      mimetype: 'application/pdf',
+      size: buffer.length,
+      data: buffer,
+      uploadedBy: mentor._id,
+    });
+    count += 1;
+  }
+  return count;
 }
 
 async function createCourses() {
@@ -233,6 +269,9 @@ async function run() {
 
   const { mentor, students } = await createUsers();
   console.log(`[seed] created 1 mentor + ${students.length} students`);
+
+  const materialCount = await createMaterials(courseDocs, mentor);
+  console.log(`[seed] attached ${materialCount} course-material PDFs`);
 
   let totalEvents = 0;
   for (const { user, engagement } of students) {

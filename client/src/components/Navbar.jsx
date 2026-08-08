@@ -26,7 +26,10 @@ export default function Navbar() {
   const home = isMentor ? '/mentor' : '/dashboard';
 
   const navLinks = isMentor ? (
-    <NavLink to="/mentor">Cohort</NavLink>
+    <>
+      <NavLink to="/mentor">Cohort</NavLink>
+      <NavLink to="/courses">Content</NavLink>
+    </>
   ) : (
     <>
       <NavLink to="/dashboard">Dashboard</NavLink>

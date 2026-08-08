@@ -1,17 +1,25 @@
 const Course = require('../models/Course');
 const Lesson = require('../models/Lesson');
 const Enrollment = require('../models/Enrollment');
+const CourseMaterial = require('../models/CourseMaterial');
 const ApiError = require('../utils/ApiError');
 
 /**
  * GET /api/courses
- * List all courses in the catalog, annotated with the student's enrollment state.
+ * List all courses in the catalog, annotated with the student's enrollment
+ * state and the number of attached materials (PDFs).
  */
 async function listCourses(req, res) {
   const courses = await Course.find().sort({ title: 1 }).lean();
 
   const enrollments = await Enrollment.find({ student: req.user._id }).lean();
   const enrollMap = new Map(enrollments.map((e) => [String(e.course), e]));
+
+  // Materials count per course in a single aggregation.
+  const matCounts = await CourseMaterial.aggregate([
+    { $group: { _id: '$course', count: { $sum: 1 } } },
+  ]);
+  const matMap = new Map(matCounts.map((m) => [String(m._id), m.count]));
 
   const data = courses.map((c) => {
     const e = enrollMap.get(String(c._id));
@@ -26,6 +34,7 @@ async function listCourses(req, res) {
       color: c.color,
       totalLessons: c.totalLessons,
       estimatedMinutes: c.estimatedMinutes,
+      materialsCount: matMap.get(String(c._id)) || 0,
       enrolled: Boolean(e),
       status: e?.status || null,
       completedLessons: e?.completedLessons.length || 0,

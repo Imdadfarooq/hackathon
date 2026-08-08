@@ -35,10 +35,12 @@ export default function App() {
           </ProtectedRoute>
         }
       />
+      {/* Course catalog & detail are available to students and mentors.
+          Mentors use the detail page to upload/manage PDF materials. */}
       <Route
         path="/courses"
         element={
-          <ProtectedRoute role="student">
+          <ProtectedRoute>
             <Layout>
               <Courses />
             </Layout>
@@ -48,7 +50,7 @@ export default function App() {
       <Route
         path="/courses/:id"
         element={
-          <ProtectedRoute role="student">
+          <ProtectedRoute>
             <Layout>
               <CourseDetail />
             </Layout>
