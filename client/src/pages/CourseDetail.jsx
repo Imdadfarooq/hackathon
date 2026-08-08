@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import api from '../api/client.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import Spinner from '../components/Spinner.jsx';
+import LessonReader from '../components/LessonReader.jsx';
 import { formatMinutes } from '../utils/format.js';
 
 function formatBytes(bytes) {
@@ -25,6 +26,7 @@ export default function CourseDetail() {
   const [busyLesson, setBusyLesson] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [viewing, setViewing] = useState(null); // { id, url, title }
+  const [openLesson, setOpenLesson] = useState(null); // lesson being read
   const fileInputRef = useRef(null);
 
   const loadCourse = useCallback(async () => {
@@ -58,17 +60,23 @@ export default function CourseDetail() {
     }
   };
 
-  const completeLesson = async (lesson) => {
+  // Core "complete" action — records an activity event and refreshes the course.
+  // Shared by the lesson row button and the in-modal reader.
+  const markLessonComplete = async (lesson) => {
+    await api.post('/activities', {
+      type: 'lesson_completed',
+      courseId: id,
+      lessonId: lesson.id,
+      durationMinutes: lesson.estimatedMinutes,
+    });
+    await loadCourse();
+  };
+
+  const completeLessonRow = async (lesson) => {
     setBusyLesson(lesson.id);
     setError('');
     try {
-      await api.post('/activities', {
-        type: 'lesson_completed',
-        courseId: id,
-        lessonId: lesson.id,
-        durationMinutes: lesson.estimatedMinutes,
-      });
-      await loadCourse();
+      await markLessonComplete(lesson);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -299,10 +307,22 @@ export default function CourseDetail() {
         )}
       </div>
 
-      {/* Lessons */}
+      {/* Lessons — click a row to open the reader */}
       <h2 style={{ fontSize: '1.15rem', margin: '22px 0 12px' }}>Lessons</h2>
       {lessons.map((lesson) => (
-        <div className="lesson-item" key={lesson.id}>
+        <div
+          className="lesson-item lesson-clickable"
+          key={lesson.id}
+          role="button"
+          tabIndex={0}
+          onClick={() => setOpenLesson(lesson)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              setOpenLesson(lesson);
+            }
+          }}
+        >
           <span className={`lesson-check ${lesson.completed ? 'done' : ''}`}>
             {lesson.completed ? '✓' : lesson.order}
           </span>
@@ -312,25 +332,38 @@ export default function CourseDetail() {
               {lesson.summary} · {formatMinutes(lesson.estimatedMinutes)}
             </div>
           </div>
-          {isMentor ? (
-            <span className={`badge badge-${lesson.difficulty}`}>{lesson.difficulty}</span>
-          ) : enrollment ? (
-            lesson.completed ? (
-              <span className="badge badge-completed">Done</span>
+          <span className="lesson-read-hint">Read →</span>
+          <div onClick={(e) => e.stopPropagation()}>
+            {isMentor ? (
+              <span className={`badge badge-${lesson.difficulty}`}>{lesson.difficulty}</span>
+            ) : enrollment ? (
+              lesson.completed ? (
+                <span className="badge badge-completed">Done</span>
+              ) : (
+                <button
+                  className="btn btn-outline btn-sm"
+                  onClick={() => completeLessonRow(lesson)}
+                  disabled={busyLesson === lesson.id}
+                >
+                  {busyLesson === lesson.id ? 'Saving…' : 'Mark complete'}
+                </button>
+              )
             ) : (
-              <button
-                className="btn btn-outline btn-sm"
-                onClick={() => completeLesson(lesson)}
-                disabled={busyLesson === lesson.id}
-              >
-                {busyLesson === lesson.id ? 'Saving…' : 'Mark complete'}
-              </button>
-            )
-          ) : (
-            <span className="chip">Enroll to start</span>
-          )}
+              <span className="chip">Enroll to start</span>
+            )}
+          </div>
         </div>
       ))}
+
+      {openLesson && (
+        <LessonReader
+          courseId={id}
+          lesson={openLesson}
+          isMentor={isMentor}
+          onClose={() => setOpenLesson(null)}
+          onComplete={markLessonComplete}
+        />
+      )}
     </div>
   );
 }

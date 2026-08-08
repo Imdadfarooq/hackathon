@@ -8,6 +8,7 @@ const Enrollment = require('../models/Enrollment');
 const ActivityEvent = require('../models/ActivityEvent');
 const CourseMaterial = require('../models/CourseMaterial');
 const { makePdf } = require('../utils/pdf');
+const { buildLessonContent, buildLessonSummary } = require('./content');
 const { COURSES, MENTOR, STUDENTS, DEMO_PASSWORD } = require('./data');
 
 // --- Deterministic PRNG (mulberry32) so seeded data & screenshots are reproducible ---
@@ -88,15 +89,17 @@ async function createMaterials(courseDocs, mentor) {
 async function createCourses() {
   const courseDocs = [];
   for (const c of COURSES) {
-    const lessonsMeta = c.lessons.map((title, idx) => ({
-      title,
-      order: idx + 1,
-      estimatedMinutes: randInt(12, 35),
-      difficulty: c.difficulty,
-      summary: `An introduction to "${title}" within ${c.title}.`,
-      content: `# ${title}\n\nThis lesson covers ${title.toLowerCase()} as part of ${c.title}. `
-        + 'Work through the reading, then complete the short exercise to mark it done.',
-    }));
+    const lessonsMeta = c.lessons.map((title, idx) => {
+      const estimatedMinutes = randInt(12, 35);
+      return {
+        title,
+        order: idx + 1,
+        estimatedMinutes,
+        difficulty: c.difficulty,
+        summary: buildLessonSummary(c, title),
+        content: buildLessonContent(c, { title, estimatedMinutes, difficulty: c.difficulty }, idx),
+      };
+    });
     const estimatedMinutes = lessonsMeta.reduce((s, l) => s + l.estimatedMinutes, 0);
 
     const course = await Course.create({

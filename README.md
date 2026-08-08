@@ -45,6 +45,10 @@ Built with the **MERN** stack — **M**ongoDB, **E**xpress, **R**eact, **N**ode.
 |---|---|
 | ![PDF student](docs/screenshots/11-course-pdf-student.png) | ![PDF mentor](docs/screenshots/12-course-pdf-mentor.png) |
 
+| In-app lesson reader (markdown content) |
+|---|
+| ![Lesson reader](docs/screenshots/13-lesson-reader.png) |
+
 | Course catalog | Login |
 |---|---|
 | ![Courses](docs/screenshots/03-courses.png) | ![Login](docs/screenshots/01-login.png) |
@@ -69,6 +73,7 @@ hamburger menu below 640px.
 - [x] **Trend chart** — time-series of minutes studied per day (7 / 30 / 90 day ranges)
 - [x] **Pie / donut chart** — distribution of time per course **and** completion status
 - [x] **Backend API** for auth, aggregates & time-series, lesson details, and activity events
+- [x] **Readable lesson content** — every lesson ships full markdown content shown in an in-app reader; students mark complete from inside it
 - [x] **Mentor PDF content** — mentors upload PDF materials per course; students view them inline (a PDF is seeded for every course)
 - [x] **Seeded sample data** + clear setup instructions
 

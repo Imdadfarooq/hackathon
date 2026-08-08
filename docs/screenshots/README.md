@@ -14,6 +14,7 @@ Captured against the seeded demo data (student `student@demo.io`, mentor `mentor
 | `07-mentor-student-detail.png` | Mentor's per-student deep dive with charts |
 | `11-course-pdf-student.png` | Student viewing a mentor-uploaded PDF inline |
 | `12-course-pdf-mentor.png` | Mentor uploading / managing course PDFs |
+| `13-lesson-reader.png` | In-app lesson reader rendering full markdown content |
 
 ## Responsive
 
