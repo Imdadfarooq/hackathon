@@ -25,7 +25,7 @@ export default function Courses() {
       <h1 className="page-title">Course catalog</h1>
       <p className="page-subtitle">Browse and continue your courses.</p>
 
-      <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' }}>
+      <div className="grid courses-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' }}>
         {courses.map((c) => {
           const pct = c.totalLessons ? Math.round((c.completedLessons / c.totalLessons) * 100) : 0;
           return (

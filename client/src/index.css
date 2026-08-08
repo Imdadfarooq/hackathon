@@ -151,6 +151,84 @@ h3 {
   gap: 10px;
 }
 
+/* Desktop vs mobile navbar visibility (switch at 640px) */
+.nav-mobile {
+  display: none;
+}
+
+/* Hamburger toggle button */
+.nav-toggle {
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  cursor: pointer;
+}
+.nav-toggle span {
+  display: block;
+  width: 20px;
+  height: 2px;
+  margin: 0 auto;
+  background: var(--text);
+  border-radius: 2px;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+.nav-toggle.is-open span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+.nav-toggle.is-open span:nth-child(2) {
+  opacity: 0;
+}
+.nav-toggle.is-open span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+/* Mobile dropdown panel */
+.nav-panel {
+  border-top: 1px solid var(--border);
+  padding: 14px 20px 18px;
+  background: var(--surface);
+  max-height: 0;
+  overflow: hidden;
+  padding-top: 0;
+  padding-bottom: 0;
+  transition: max-height 0.25s ease, padding 0.25s ease;
+}
+.nav-panel.open {
+  max-height: 420px;
+  padding-top: 14px;
+  padding-bottom: 18px;
+}
+.nav-panel-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 14px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.nav-panel-links {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 14px;
+}
+.nav-panel-links a {
+  padding: 11px 12px;
+  border-radius: 9px;
+  font-weight: 600;
+  color: var(--text);
+}
+.nav-panel-links a.active {
+  background: var(--primary-soft);
+  color: var(--primary-dark);
+}
+
 /* ---------- Cards ---------- */
 .card {
   background: var(--surface);
@@ -202,12 +280,60 @@ h3 {
     grid-template-columns: 1fr;
   }
 }
-@media (max-width: 520px) {
+
+/* Switch to the mobile navbar (hamburger) below 640px */
+@media (max-width: 640px) {
+  .nav-desktop {
+    display: none !important;
+  }
+  .nav-toggle {
+    display: flex;
+  }
+  .nav-panel.open {
+    display: block;
+  }
+  .navbar-inner {
+    padding: 10px 16px;
+  }
+}
+
+@media (max-width: 560px) {
   .stat-grid {
     grid-template-columns: 1fr;
   }
-  .nav-links {
-    display: none;
+  .container {
+    padding: 18px 14px 40px;
+  }
+  .card-pad {
+    padding: 16px;
+  }
+  .page-title {
+    font-size: 1.35rem;
+  }
+  .stat-value {
+    font-size: 1.7rem;
+  }
+  /* Let header rows stack instead of squeezing */
+  .row-between,
+  .card-header {
+    flex-wrap: wrap;
+  }
+  /* Recommendation cards: action button drops to its own row */
+  .rec-item {
+    flex-wrap: wrap;
+  }
+  .rec-item .btn {
+    width: 100%;
+  }
+  /* Course catalog: always a single column on phones */
+  .courses-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .brand span:last-child {
+    display: none; /* keep just the mark on very narrow screens */
   }
 }
 
@@ -652,6 +778,7 @@ h3 {
 .table {
   width: 100%;
   border-collapse: collapse;
+  min-width: 560px; /* keep columns readable; .table-wrap scrolls on small screens */
 }
 .table th,
 .table td {

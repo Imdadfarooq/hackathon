@@ -41,9 +41,18 @@ Built with the **MERN** stack — **M**ongoDB, **E**xpress, **R**eact, **N**ode.
 |---|---|
 | ![Course detail](docs/screenshots/04-course-detail.png) | ![Mentor student detail](docs/screenshots/07-mentor-student-detail.png) |
 
-| Course catalog | Login | Responsive (mobile) |
-|---|---|---|
-| ![Courses](docs/screenshots/03-courses.png) | ![Login](docs/screenshots/01-login.png) | ![Mobile](docs/screenshots/05-mobile-dashboard.png) |
+| Course catalog | Login |
+|---|---|
+| ![Courses](docs/screenshots/03-courses.png) | ![Login](docs/screenshots/01-login.png) |
+
+### Fully responsive
+
+The layout reflows from desktop → tablet → phone, and the navbar collapses into a
+hamburger menu below 640px.
+
+| Mobile dashboard | Mobile menu | Mobile mentor | Tablet dashboard |
+|---|---|---|---|
+| ![Mobile dashboard](docs/screenshots/05-mobile-dashboard.png) | ![Mobile menu](docs/screenshots/08-mobile-menu.png) | ![Mobile mentor](docs/screenshots/09-mobile-mentor.png) | ![Tablet](docs/screenshots/10-tablet-dashboard.png) |
 
 ---
 
@@ -63,7 +72,7 @@ Built with the **MERN** stack — **M**ongoDB, **E**xpress, **R**eact, **N**ode.
 - [x] **Export to CSV** — course progress and time-series (student & mentor)
 - [x] **Mentor dashboards** — cohort roll-up + per-student deep dives
 - [x] **Tests** — 12 backend integration tests (Jest + Supertest + in-memory MongoDB)
-- [x] **Responsive UI** — mobile-first layout, dark-mode aware
+- [x] **Fully responsive UI** — reflows desktop → tablet → phone, hamburger nav below 640px, dark-mode aware
 
 ---
 
